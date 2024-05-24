@@ -1,0 +1,27 @@
+1) instalar a biblioteca jspdf com o comando
+
+npm install jspdf
+2) na região do html que você quer exibir dentro do pdf, crie uma div com uma
+id que será chamada no typescript.
+3) crie o botão gerar pdf em determinado lugar do html com a função de click de sua
+escolha. iremos utilizar o gerarPDF()
+4) no typescript, no início do arquivo adicione a linha:
+// @ts-ignore
+isso irá evitar que haja o erro na hora de importar o jspdf, visto que a
+maneira de importar é diferente.
+
+5) adicione a linha:
+import jsPDF from 'jspdf';
+6) abaixo a função que gera o pdf:
+  gerarPDF(): void {
+    const element = document.getElementById('iddaregiaoquequergeraropdf');
+    if (element) {
+      const pdf = new jsPDF();
+      pdf.html(element, {
+        callback: (pdf) => {
+          pdf.save('churrascometro.pdf');
+        }
+
+      });
+    }
+  }
