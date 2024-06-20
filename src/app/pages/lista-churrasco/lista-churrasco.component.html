@@ -1,0 +1,32 @@
+<!-- item-list.component.html -->
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of items; track item;
+      let i = $index;
+      let c = $count;
+      let f = $first;
+      let l = $last;
+      let o = $odd;
+      let e = $even
+      ) {
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>{{ item.nome }}</td>
+        <td>
+          <button mat-raised-button color="primary" (click)="navegarParaDetalhe(item.id)">
+            Ir para detalhe
+          </button>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>

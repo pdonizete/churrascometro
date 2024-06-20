@@ -1,0 +1,31 @@
+<mat-toolbar class="h-32" id="header">
+  <mat-toolbar-row class="flex justify-between !h-full !items-center bg-primary sm:!flex-row-reverse">
+    <menu class="block sm:hidden">
+      <button mat-icon-button [matMenuTriggerFor]="menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        @if (loginService.isLoggedIn()) {
+          <a mat-menu-item (click)="logout()">Sair</a>
+        } @else {
+          <input type="text" matInput [(ngModel)]="user" placeholder="Usuário" />
+          <input type="password" matInput [(ngModel)]="pass" placeholder="Senha" />
+          <button mat-menu-item (click)="login()">Entrar</button>
+        }
+      </mat-menu>
+    </menu>
+    <menu class="hidden sm:flex">
+      @if (loginService.isLoggedIn()) {
+        <a mat-menu-item (click)="logout()">Sair</a>
+      } @else {
+        <input class="mr-2" type="text" matInput color="primary" [(ngModel)]="user" placeholder="Usuário" />
+        <input class="mr-2" type="password" matInput color="primary" [(ngModel)]="pass" placeholder="Senha" />
+        <button mat-menu-item (click)="login()">Entrar</button>
+      }
+    </menu>
+    <figure routerLink="/home" class="flex items-center gap-4 md:flex-row-reverse cursor-pointer">
+      <figcaption>Churrascometro</figcaption>
+      <img src="../../../assets/logo.jpg" class="size-16 rounded-2xl" alt="barbecue logo" />
+    </figure>
+  </mat-toolbar-row>
+</mat-toolbar>

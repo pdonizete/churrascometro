@@ -2,7 +2,9 @@ import { Component, LOCALE_ID } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import pt from '@angular/common/locales/pt';
 import { registerLocaleData } from '@angular/common';
-import { HeaderComponent } from './header/header.component';
+import { HeaderComponent } from './shared/components/header/header.component';
+import { LoginService } from './shared/services/login.service';
+import { StorageService } from './shared/services/storage.service';
 
 registerLocaleData(pt);
 
@@ -19,4 +21,12 @@ registerLocaleData(pt);
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
+  title = 'churrascometro';
+
+
+  constructor() {
+    
+  }
+
+  
 }

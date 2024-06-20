@@ -1,0 +1,286 @@
+
+<!-- Formulários -->
+<section id="form-container" class="container mx-auto">
+  <!-- reactive forms -->
+  <mat-stepper
+    orientation="vertical"
+    [linear]="true"
+    #stepper
+    class="w-[640px] mx-auto"
+  >
+    <mat-step [stepControl]="formTipoChurrasco">
+      <form [formGroup]="formTipoChurrasco" class="flex flex-col">
+        <ng-template matStepLabel>Qual o tipo de churrasco?</ng-template>
+
+        <mat-radio-group formControlName="tipoChurrasco" class="mt-2">
+          @for (tipoChurrasco of tiposChurrasco; track tipoChurrasco) {
+          <mat-radio-button class="flex flex-col" [value]="tipoChurrasco">
+            {{ tipoChurrasco }}
+          </mat-radio-button>
+          }
+        </mat-radio-group>
+
+        <mat-error class="mt-2" *ngIf="!formTipoChurrasco.valid">
+          Pelo menos um tipo é obrigatório
+        </mat-error>
+
+        <div class="flex justify-end mt-2">
+          <button
+            mat-flat-button
+            color="primary"
+            matStepperNext
+            [disabled]="!formTipoChurrasco.valid"
+            (click)="carregaTipoChurrasco()">
+            Avançar
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="formPessoas">
+      <form [formGroup]="formPessoas" class="flex flex-col">
+        <ng-template matStepLabel>Quantas pessoas?</ng-template>
+
+        <mat-form-field>
+          <input
+            matInput
+            type="number"
+            formControlName="adultos"
+            placeholder="Quantos adultos?"
+          />
+        </mat-form-field>
+
+        <mat-form-field>
+          <input
+            matInput
+            type="number"
+            formControlName="criancas"
+            placeholder="Quantas crianças?"
+          />
+        </mat-form-field>
+
+        <mat-error
+          class="mt-2"
+          *ngIf="formPessoas.get('adultos')?.hasError('min')"
+        >
+          Pelo menos um adulto é obrigatório
+        </mat-error>
+
+        <mat-error
+          class="mt-2"
+          *ngIf="
+            formPessoas.get('adultos')?.value < 0 ||
+            formPessoas.get('criancas')?.value < 0
+          "
+        >
+          Não pode inserir valores negativos
+        </mat-error>
+
+        <div class="flex justify-end mt-2">
+          <button
+            mat-flat-button
+            color="primary"
+            matStepperNext
+            [disabled]="
+              formPessoas.invalid ||
+              formPessoas.get('adultos')?.value <= 0 ||
+              formPessoas.get('criancas')?.value < 0
+            "
+          >
+            Avançar
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="formCarnes">
+      <form [formGroup]="formCarnes" class="flex flex-col">
+        <ng-template matStepLabel>Quais carnes?</ng-template>
+
+        @for (carne of carnesLista; track $index) {
+          @switch(tipoChurrascoSelecionado) {
+            @case(tiposChurrascoEnum.normal) {
+              <mat-checkbox [formControlName]="carne.value">
+                {{ carne.label }}
+              </mat-checkbox>
+            }
+            @case(tiposChurrascoEnum.vegetariano) {
+              @if (carne.tipo === tiposChurrascoEnum.vegetariano || carne.tipo === tiposChurrascoEnum.vegano) {
+                <mat-checkbox [formControlName]="carne.value">
+                  {{ carne.label }}
+                </mat-checkbox>
+              }
+            }
+            @case(tiposChurrascoEnum.vegano) {
+              @if (carne.tipo === tiposChurrascoEnum.vegano) {
+                <mat-checkbox [formControlName]="carne.value">
+                  {{ carne.label }}
+                </mat-checkbox>
+              }
+            }
+          }
+        }
+
+        <div class="flex justify-end mt-2">
+          <button mat-flat-button color="primary" matStepperNext>
+            Avançar
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="formBebidas">
+      <form [formGroup]="formBebidas" class="flex flex-col">
+        <ng-template matStepLabel>Quais bebidas?</ng-template>
+
+        <ng-container *ngFor="let bebida of bebidasLista">
+          <mat-checkbox [formControlName]="bebida.value">{{
+            bebida.label
+          }}</mat-checkbox>
+        </ng-container>
+
+        <div class="flex justify-end mt-2">
+          <button mat-flat-button color="primary" (click)="submit()">
+            Calcular
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</section>
+
+<!-- Resultados -->
+<section class="container mx-auto mt-4">
+
+  <div id="idrelatorio" *ngIf="exibirResultados">
+    <h1 class="text-2xl font-bold mb-4">Valores para meu Churrasco</h1>
+
+    <h2 class="text-xl font-bold mb-4">Pessoas</h2>
+    <table class="min-w-full bg-white table-fixed">
+      <thead>
+        <tr>
+          <th class="py-2 px-4 border-b text-left">Descrição</th>
+          <th class="py-2 px-4 border-b text-left">Quantidade</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="py-2 px-4 border-b text-left">Adultos</td>
+          <td class="py-2 px-4 border-b text-left">
+            {{ adultos_total }}
+          </td>
+        </tr>
+        <tr>
+          <td class="py-2 px-4 border-b text-left">Crianças</td>
+          <td class="py-2 px-4 border-b text-left">
+            {{ criancas_total }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    @if (carnesSelecionadas.length > 0) {
+      <h2 class="text-xl font-bold m-4">Carnes</h2>
+      <table class="min-w-full bg-white table-fixed">
+        <thead>
+          <tr>
+            <th class="py-2 px-4 border-b text-left">Descrição</th>
+            <th class="py-2 px-4 border-b text-left">Valor Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (carne of getCarnes(); track carne.id) {
+            @if (carnesSelecionadas.includes(carne.nome)) {
+              <tr>
+                <td class="py-2 px-4 border-b text-left">
+                  {{ carne.nome | titlecase}}
+                </td>
+                <td class="py-2 px-4 border-b text-left">
+                  {{ calculaPreco(
+                    adultos_total,
+                    criancas_total,
+                    carne.consumo_medio_adulto_g,
+                    carne.consumo_medio_crianca_g,
+                    carne.preco_kg
+                  ) | currency : "BRL" }}
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    }
+
+
+    @if (bebidasSelecionadas.length > 0) {
+      <h2 class="text-xl font-bold m-4">Bebidas</h2>
+      <table class="min-w-full bg-white table-fixed">
+        <thead>
+          <tr>
+            <th class="py-2 px-4 border-b text-left">Descrição</th>
+            <th class="py-2 px-4 border-b text-left">Valor Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (bebida of getBebidas(); track bebida.id) {
+            @if(bebidasSelecionadas.includes(bebida.nome)) {
+              <tr>
+                <td class="py-2 px-4 border-b text-left">
+                  {{ bebida.nome | titlecase }}
+                </td>
+                <td class="py-2 px-4 border-b text-left">
+                  {{
+                    calculaPreco(
+                      adultos_total,
+                      criancas_total,
+                      bebida.consumo_medio_adulto_ml,
+                      bebida.consumo_medio_crianca_ml,
+                      bebida.preco_unidade
+                    ) | currency : "BRL"
+                  }}
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    }
+
+    <h3 class="flex justify-end text-xl font-bold m-4">Valor Total: {{ calcularValorTotal() | currency : "BRL" }}</h3>
+  </div>
+
+</section>
+
+<!-- Valores de Referência -->
+<div class="container mx-auto p-4">
+  <h1 class="text-2xl font-bold mb-4">
+    Valores de referência das Carnes e Bebidas
+  </h1>
+
+  <div class="grid grid-cols-2 gap-4">
+    @for (carne of getCarnes(); track carne.id) {
+      <div class="bg-white shadow-md rounded p-4 mb-4">
+        <h2 class="text-xl font-semibold mb-2">{{ carne.nome | uppercase }}</h2>
+        <p>Preço por kg: {{ carne.preco_kg | currency : "BRL" }}</p>
+        <p>Consumo médio adulto (g): {{ carne.consumo_medio_adulto_g }}</p>
+        <p>Consumo médio criança (g): {{ carne.consumo_medio_crianca_g }}</p>
+      </div>
+    }
+
+    @for (bebida of getBebidas(); track bebida.id) {
+      <div class="bg-white shadow-md rounded p-4 mb-4">
+        <h2 class="text-xl font-semibold mb-2">{{ bebida.nome | uppercase }}</h2>
+        <p>Preço por unidade: {{ bebida.preco_unidade | currency : "BRL" }}</p>
+        <p>Consumo médio adulto (ml): {{ bebida.consumo_medio_adulto_ml }}</p>
+        <p>Consumo médio criança (ml): {{ bebida.consumo_medio_crianca_ml }}</p>
+      </div>
+    }
+  </div>
+
+  <button mat-flat-button color="primary" (click)="gerarPDF()">
+    Gerar Pdf
+  </button>
+
+
+
+

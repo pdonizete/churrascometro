@@ -1,0 +1,49 @@
+<form [formGroup]="form" class="flex flex-col m-10">
+    <h2 class="text-xl font-bold mb-4">
+        @if (idRoute) {
+            Edição de {{ produtoRoute | titlecase }}
+        } @else {
+            Criação de {{ produtoRoute | titlecase }}
+        }
+    </h2>
+    @for (campo of campos; track campo.nome) {
+        @if(campo.tipo === 'list') {
+                <mat-form-field>
+                    <mat-select 
+                    [formControlName]="campo.nome"
+                    [placeholder]="campo.placeholder"
+                    (selectionChange)="disableCrianca()">
+                
+                    @if (produtoRoute === 'bebidas') {
+                        @for (tipoBebida of listaTipoBebida; track tipoBebida) {
+                            <mat-option [value]="tipoBebida">{{ tipoBebida }}</mat-option>
+                        }
+                    } @else {
+                        @for (tipoChurrasco of listaTipoChurrasco; track tipoChurrasco) {
+                            <mat-option [value]="tipoChurrasco">{{ tipoChurrasco }}</mat-option>
+                        }
+                    }
+                    </mat-select>
+                </mat-form-field>
+        } @else {
+            <mat-form-field>
+                <input
+                  matInput
+                  [type]="campo.tipo"
+                  [formControlName]="campo.nome"
+                  [placeholder]="campo.placeholder"
+                />
+            </mat-form-field>
+        }
+    }
+    <button mat-raised-button color="primary" class="button-start mb-6" [disabled]="!form.valid" (click)="idRoute ? editar() : criar()" >
+        @if (idRoute) {
+            Editar
+        } @else {
+            Criar
+        }
+    </button>
+    @if (idRoute) {
+        <button mat-raised-button color="warn" class="button-start mb-6" (click)="deletar()">Apagar</button>
+    }
+</form>
